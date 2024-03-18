@@ -1,0 +1,110 @@
+//JavaFx doesn't work on all computers so I'd recommend looking into it more just in case
+
+
+import javafx.application.Application;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
+
+
+public class App extends Application {
+    private static final int BOARD_SIZE = 5;
+    private static final String EMPTY_CELL = " ";
+    private static final String PLAYER_X = "X";
+    private static final String PLAYER_O = "O";
+    private String currentPlayer = PLAYER_X;
+    private Button[][] cells = new Button[BOARD_SIZE][BOARD_SIZE];
+
+    @Override
+    public void start(Stage primaryStage) {
+        GridPane pane = new GridPane();
+        pane.setAlignment(Pos.CENTER);
+
+        // Initialize the board with empty cells (aka buttons)
+        for (int row = 0; row < BOARD_SIZE; row++) {
+            for (int col = 0; col < BOARD_SIZE; col++) {
+                cells[row][col] = createCell();
+                pane.add(cells[row][col], col, row);
+            }
+        }
+
+        Scene scene = new Scene(pane);
+        primaryStage.setTitle("Tic Tac Toe");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    private Button createCell() {
+        Button cell = new Button(EMPTY_CELL);
+        cell.getStyleClass().add("cell");
+        cell.setMinSize(50, 50);
+        cell.setAlignment(Pos.CENTER);
+
+        // Set up event handler for cell clicks
+        cell.setOnAction(event -> handleCellClick((Button) event.getSource()));
+        return cell;
+    }
+
+    // Logic for winners and losers (after each move, check if there's a winning combination)
+    private boolean checkForWinner(int row, int col) {
+        String currentSymbol = cells[row][col].getText();
+
+        // Check row
+        boolean rowWin = true;
+        for (int c = 0; c < BOARD_SIZE; c++) {
+            if (!cells[row][c].getText().equals(currentSymbol)) {
+                rowWin = false;
+                break;
+            }
+        }
+
+        // Check column
+        boolean colWin = true;
+        for (int r = 0; r < BOARD_SIZE; r++) {
+            if (!cells[r][col].getText().equals(currentSymbol)) {
+                colWin = false;
+                break;
+            }
+        }
+
+        // Check main diagonal
+        boolean mainDiagonalWin = true;
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            if (!cells[i][i].getText().equals(currentSymbol)) {
+                mainDiagonalWin = false;
+                break;
+            }
+        }
+
+        // Check anti-diagonal
+        boolean antiDiagonalWin = true;
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            if (!cells[i][BOARD_SIZE - 1 - i].getText().equals(currentSymbol)) {
+                antiDiagonalWin = false;
+                break;
+            }
+        }
+
+        return rowWin || colWin || mainDiagonalWin || antiDiagonalWin;
+    }
+
+    private void handleCellClick(Button clickedCell) {
+        if (clickedCell.getText().equals(EMPTY_CELL)) {
+            clickedCell.setText(currentPlayer);
+            if (checkForWinner(GridPane.getRowIndex(clickedCell), GridPane.getColumnIndex(clickedCell))) {
+                System.out.println("Player " + currentPlayer + " wins!");
+                // Add any other logic you may need
+            }
+            currentPlayer = (currentPlayer.equals(PLAYER_X)) ? PLAYER_O : PLAYER_X;
+        }
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+
+
+
